@@ -1,0 +1,636 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0d0f;--bg2:#141618;--bg3:#1e2124;--bg4:#272b2f;--accent:#7ec8a0;--accent2:#8b5cf6;--accent3:#34d399;--accent4:#f87171;--gold:#c9a96e;--text:#dde8e0;--text2:#8a9e92;--text3:#4a5e52;--r:14px;--r2:10px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);padding:0 14px 24px;display:flex;flex-direction:column;gap:2px;border-right:1px solid rgba(126,200,160,0.08)}
+.logo-block{padding:22px 10px 18px;border-bottom:1px solid rgba(126,200,160,0.08);margin-bottom:10px}
+.goose-badge{display:flex;align-items:center;gap:10px}
+.goose-avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1a3d2a,#2d6b47);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid rgba(126,200,160,0.2)}
+.goose-name{font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);letter-spacing:-0.3px;line-height:1.1}
+.goose-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r2);cursor:pointer;color:var(--text2);transition:all .2s;font-size:13.5px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(126,200,160,0.12);color:var(--accent);font-weight:500}
+.nav-icon{width:18px;text-align:center;font-size:15px;flex-shrink:0}
+.sidebar-section{font-size:9.5px;letter-spacing:1.5px;color:var(--text3);padding:14px 10px 4px;text-transform:uppercase}
+.main{overflow-y:auto}
+.topbar{padding:22px 28px 0;display:flex;justify-content:space-between;align-items:center}
+.greeting{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:-0.5px}
+.greeting em{color:var(--accent);font-style:italic}
+.date-chip{background:var(--bg3);padding:7px 14px;border-radius:20px;color:var(--text2);font-size:12px;border:1px solid rgba(126,200,160,0.08)}
+.content{padding:20px 28px;display:flex;flex-direction:column;gap:18px}
+.panel{display:none}.panel.active{display:contents}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.card{background:var(--bg2);border-radius:var(--r);padding:18px;border:1px solid rgba(126,200,160,0.06);animation:fadeUp .35s ease both}
+.card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.08s}.card:nth-child(3){animation-delay:.12s}.card:nth-child(4){animation-delay:.16s}
+.card-title{font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.card-big-num{font-family:'DM Serif Display',serif;font-size:38px;color:var(--text);line-height:1}
+.card-sub{color:var(--text2);font-size:12px;margin-top:4px}
+.empty{color:var(--text3);padding:18px 0;text-align:center;font-size:13px}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.add-btn{background:rgba(126,200,160,0.15);color:var(--accent);border:1px solid rgba(126,200,160,0.25);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.add-btn:hover{background:rgba(126,200,160,0.25)}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:0 3px;line-height:1;transition:color .2s;flex-shrink:0}
+.del-btn:hover{color:var(--accent4)}
+.edit-btn{background:var(--bg3);border:none;color:var(--text3);padding:3px 8px;border-radius:5px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif}
+.edit-btn:hover{color:var(--text)}
+.undo-btn{background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.2);color:var(--gold);padding:5px 11px;border-radius:7px;cursor:pointer;font-size:11.5px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
+.undo-btn:hover{background:rgba(201,169,110,0.22)}
+.undo-btn:disabled{opacity:0.3;cursor:not-allowed}
+.habit-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.habit-item:last-child{border-bottom:none}
+.habit-check{width:21px;height:21px;border-radius:50%;border:2px solid var(--text3);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.habit-check.done{background:var(--accent3);border-color:var(--accent3)}
+.habit-check.done::after{content:'✓';font-size:11px;color:#0c0d0f;font-weight:700}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-weight:500;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.habit-streak{font-size:11px;color:var(--gold);margin-top:2px}
+.habit-bar{height:3px;background:var(--bg4);border-radius:2px;margin-top:6px;overflow:hidden}
+.habit-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.task-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.task-item:last-child{border-bottom:none}
+.task-box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--text3);cursor:pointer;flex-shrink:0;margin-top:2px;transition:all .2s}
+.task-box.done{background:var(--accent2);border-color:var(--accent2)}
+.task-text{flex:1;line-height:1.5;font-size:13.5px}
+.task-text.done{text-decoration:line-through;color:var(--text3)}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10.5px;margin-top:3px;font-weight:500}
+.tag.work{background:rgba(139,92,246,0.18);color:#a78bfa}
+.tag.health{background:rgba(52,211,153,0.18);color:#34d399}
+.tag.personal{background:rgba(126,200,160,0.18);color:var(--accent)}
+.goal-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.goal-item:last-child{border-bottom:none}
+.goal-bar{height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.goal-fill{height:100%;border-radius:4px}
+.prog-row{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.prog-row:last-child{border-bottom:none}
+.prog-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:2px}
+.prog-fill{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.savings-big{font-family:'DM Serif Display',serif;font-size:44px;color:var(--accent);line-height:1}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:4px}
+.cal-day-name{text-align:center;font-size:10px;color:var(--text3);padding:4px 0}
+.cal-day{text-align:center;padding:7px 3px;border-radius:7px;font-size:12.5px;cursor:pointer;transition:all .2s;color:var(--text2)}
+.cal-day:hover{background:var(--bg3);color:var(--text)}
+.cal-day.today{background:var(--accent);color:#0c0d0f;font-weight:700}
+.cal-day.has-event{position:relative}
+.cal-day.has-event::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent2)}
+.cal-day.other-month{opacity:0.3}
+.stat-chip{background:var(--bg3);border-radius:var(--r2);padding:15px 16px;display:flex;align-items:center;gap:11px;border:1px solid rgba(126,200,160,0.06)}
+.stat-val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text2);margin-top:1px}
+.fin-tabs{display:flex;gap:4px;margin-bottom:16px}
+.fin-tab{padding:6px 14px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:12.5px;transition:all .2s;border:1px solid transparent}
+.fin-tab.active{background:rgba(126,200,160,0.12);color:var(--accent);border-color:rgba(126,200,160,0.2)}
+
+/* ── INSPIRATION ── */
+.inspo-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.inspo-tab{padding:6px 16px;border-radius:20px;cursor:pointer;color:var(--text2);font-size:12.5px;transition:all .2s;border:1px solid rgba(255,255,255,0.06);background:var(--bg3)}
+.inspo-tab.active{color:#0c0d0f;font-weight:600;border-color:transparent}
+.board{columns:3;gap:12px}
+.board-item{break-inside:avoid;margin-bottom:12px;position:relative;border-radius:12px;overflow:hidden;cursor:pointer;group:hover}
+.board-item img{width:100%;display:block;border-radius:12px;transition:transform .3s}
+.board-item:hover img{transform:scale(1.03)}
+.board-item .item-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);opacity:0;transition:opacity .2s;border-radius:12px;display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.board-item:hover .item-overlay{opacity:1}
+.board-item .item-label{color:#fff;font-size:12.5px;font-weight:500}
+.board-item .item-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.board-item:hover .item-del{opacity:1}
+.board-url{width:100%;border-radius:12px;background:var(--bg3);border:1px dashed rgba(126,200,160,0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 16px;cursor:pointer;transition:all .2s;color:var(--text3);font-size:13px;break-inside:avoid;margin-bottom:12px}
+.board-url:hover{border-color:var(--accent);color:var(--accent);background:rgba(126,200,160,0.04)}
+
+/* wishlist */
+.wish-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.wish-item:last-child{border-bottom:none}
+.wish-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--text3);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.wish-check.bought{background:var(--gold);border-color:var(--gold)}
+.wish-check.bought::after{content:'✓';font-size:11px;color:#0c0d0f;font-weight:700}
+.wish-price{font-size:12px;color:var(--gold);white-space:nowrap}
+.wish-name{flex:1;font-size:13.5px}
+.wish-name.bought{text-decoration:line-through;color:var(--text3)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast-wrap{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none}
+.toast{background:var(--bg3);border:1px solid rgba(126,200,160,0.15);color:var(--text);padding:10px 14px;border-radius:10px;font-size:12.5px;opacity:0;transform:translateY(8px);transition:all .25s;display:flex;align-items:center;gap:10px;pointer-events:all;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-undo{background:none;border:none;color:var(--gold);font-weight:600;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;white-space:nowrap}
+.toast-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;margin-left:auto;padding:0}
+.credit-item{padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.credit-item:last-child{border-bottom:none}
+</style>
+
+<!-- FAVICON via JS — inserted into <head> dynamically -->
+
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo-block">
+      <div class="goose-badge">
+        <div class="goose-avatar">🪿</div>
+        <div><div class="goose-name">GOOSENOKKK</div><div class="goose-sub">личный штаб</div></div>
+      </div>
+    </div>
+    <div class="nav-item active" onclick="showTab('dashboard',this)"><span class="nav-icon">⊞</span>Дашборд</div>
+    <div class="nav-item" onclick="showTab('habits',this)"><span class="nav-icon">◎</span>Привычки</div>
+    <div class="nav-item" onclick="showTab('tasks',this)"><span class="nav-icon">✓</span>Задачи</div>
+    <div class="nav-item" onclick="showTab('goals',this)"><span class="nav-icon">◈</span>Цели</div>
+    <div class="nav-item" onclick="showTab('finance',this)"><span class="nav-icon">◑</span>Финансы</div>
+    <div class="nav-item" onclick="showTab('calendar',this)"><span class="nav-icon">▦</span>Календарь</div>
+    <div class="nav-item" onclick="showTab('inspo',this)"><span class="nav-icon">✦</span>Вдохновение</div>
+    <div class="sidebar-section">Аналитика</div>
+    <div class="nav-item" onclick="showTab('stats',this)"><span class="nav-icon">↗</span>Статистика</div>
+    <div style="margin-top:auto;padding-top:16px">
+      <div onclick="resetAll()" style="display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--r2);cursor:pointer;color:var(--text3);font-size:12.5px;transition:color .2s" onmouseover="this.style.color='var(--accent4)'" onmouseout="this.style.color='var(--text3)'">↺ Сбросить данные</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="greeting">Привет, <em>Goose</em> 🪿</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="font-size:11px;color:var(--accent);opacity:0.6">● сохранено</div>
+        <div class="date-chip" id="dateChip"></div>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="tab-dashboard" class="panel active">
+        <div class="grid4">
+          <div class="stat-chip card"><span style="font-size:20px">🔥</span><div><div class="stat-val" id="dash-streak">—</div><div class="stat-label">макс. стрик</div></div></div>
+          <div class="stat-chip card"><span style="font-size:20px">✅</span><div><div class="stat-val" id="dash-tasks-count">—</div><div class="stat-label">задач выполнено</div></div></div>
+          <div class="stat-chip card"><span style="font-size:20px">₽</span><div><div class="stat-val" id="dash-spent">0</div><div class="stat-label">расходов</div></div></div>
+          <div class="stat-chip card"><span style="font-size:20px">🪿</span><div><div class="stat-val" id="dash-savings">0</div><div class="stat-label">в копилке</div></div></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="section-header"><div class="card-title">Привычки сегодня</div></div><div id="dash-habits"></div></div>
+          <div class="card"><div class="section-header"><div class="card-title">Задачи</div></div><div id="dash-tasks"></div></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="card-title">Ближайшие платежи</div><div id="dash-credits"></div></div>
+          <div class="card"><div class="card-title">Копилка</div><div id="dash-piggy"></div></div>
+        </div>
+      </div>
+
+      <!-- HABITS -->
+      <div id="tab-habits" class="panel">
+        <div class="grid2">
+          <div class="card">
+            <div class="section-header"><div class="card-title">Трекер привычек</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-habits" onclick="undoAction('habits')" disabled>↩ Отменить</button><button class="add-btn" onclick="addHabit()">+ Привычка</button></div></div>
+            <div id="habits-list"></div>
+          </div>
+          <div class="card"><div class="card-title">Статистика недели</div><div id="habit-week-stats" style="margin-top:8px"></div></div>
+        </div>
+      </div>
+
+      <!-- TASKS -->
+      <div id="tab-tasks" class="panel">
+        <div class="card">
+          <div class="section-header"><div class="card-title">Все задачи</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-tasks" onclick="undoAction('tasks')" disabled>↩ Отменить</button><button class="add-btn" onclick="addTask()">+ Задача</button></div></div>
+          <div id="tasks-list"></div>
+        </div>
+      </div>
+
+      <!-- GOALS -->
+      <div id="tab-goals" class="panel">
+        <div class="grid2">
+          <div class="card">
+            <div class="section-header"><div class="card-title">Мои цели</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-goals" onclick="undoAction('goals')" disabled>↩ Отменить</button><button class="add-btn" onclick="addGoal()">+ Цель</button></div></div>
+            <div id="goals-list"></div>
+          </div>
+          <div class="card"><div class="card-title">Общий прогресс</div><div style="margin-top:20px;text-align:center"><div style="font-family:'DM Serif Display',serif;font-size:52px;color:var(--accent)" id="goals-avg">—</div><div style="color:var(--text2);margin-top:8px;font-size:13px">средний прогресс</div></div></div>
+        </div>
+      </div>
+
+      <!-- FINANCE -->
+      <div id="tab-finance" class="panel">
+        <div class="fin-tabs">
+          <div class="fin-tab active" onclick="showFinTab('expenses',this)">💳 Расходы</div>
+          <div class="fin-tab" onclick="showFinTab('credits',this)">🏦 Кредиты</div>
+          <div class="fin-tab" onclick="showFinTab('savings',this)">🪿 Копилка</div>
+        </div>
+        <div id="fin-expenses">
+          <div class="grid3" style="margin-bottom:14px">
+            <div class="card"><div class="card-title">Бюджет месяца</div><div style="display:flex;align-items:baseline;gap:8px"><div class="card-big-num" id="fin-budget-display">0 ₽</div><button class="edit-btn" onclick="setBudget()">✎</button></div><div class="card-sub">лимит</div></div>
+            <div class="card"><div class="card-title">Потрачено</div><div class="card-big-num" id="fin-spent-big">0 ₽</div><div class="card-sub" id="fin-pct">—</div></div>
+            <div class="card"><div class="card-title">Осталось</div><div class="card-big-num" id="fin-left" style="color:var(--accent3)">0 ₽</div><div class="card-sub">до конца месяца</div></div>
+          </div>
+          <div class="card"><div class="section-header"><div class="card-title">По категориям</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-expenses" onclick="undoAction('expenses')" disabled>↩ Отменить</button><button class="add-btn" onclick="addExpense()">+ Расход</button></div></div><div id="finance-list"></div></div>
+        </div>
+        <div id="fin-credits" style="display:none">
+          <div class="card"><div class="section-header"><div class="card-title">Мои кредиты</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-credits" onclick="undoAction('credits')" disabled>↩ Отменить</button><button class="add-btn" onclick="addCredit()">+ Кредит</button></div></div><div id="credits-list"></div></div>
+          <div class="grid2" style="margin-top:14px">
+            <div class="card"><div class="card-title">Общий долг</div><div class="card-big-num" id="total-debt" style="color:var(--accent4)">0 ₽</div></div>
+            <div class="card"><div class="card-title">Платежей в месяц</div><div class="card-big-num" id="monthly-payments">0 ₽</div></div>
+          </div>
+        </div>
+        <div id="fin-savings" style="display:none">
+          <div class="grid2">
+            <div class="card">
+              <div class="card-title">Копилка 🪿</div>
+              <div class="savings-big" id="savings-total">0 ₽</div>
+              <div style="font-size:13px;color:var(--text2);margin-top:4px" id="savings-goal-label">цель не задана</div>
+              <div style="margin-top:12px"><div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden"><div id="savings-bar" style="height:100%;width:0%;background:var(--accent);border-radius:3px;transition:width .6s"></div></div></div>
+              <div style="display:flex;gap:8px;margin-top:16px"><button class="add-btn" onclick="addToSavings()">+ Пополнить</button><button class="undo-btn" id="undo-savings" onclick="undoSavings()" disabled>↩ Отменить</button><button class="edit-btn" onclick="setSavingsGoal()" style="padding:7px 12px">Цель ✎</button></div>
+            </div>
+            <div class="card"><div class="card-title">История</div><div id="savings-history"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div id="tab-calendar" class="panel">
+        <div class="grid2">
+          <div class="card">
+            <div class="section-header"><div class="card-title" id="cal-month-title"></div><div style="display:flex;gap:6px"><button onclick="changeMonth(-1)" style="background:var(--bg3);border:none;color:var(--text2);padding:4px 10px;border-radius:6px;cursor:pointer">‹</button><button onclick="changeMonth(1)" style="background:var(--bg3);border:none;color:var(--text2);padding:4px 10px;border-radius:6px;cursor:pointer">›</button></div></div>
+            <div id="calendar-grid"></div>
+          </div>
+          <div class="card"><div class="section-header"><div class="card-title">События</div><div style="display:flex;gap:7px"><button class="undo-btn" id="undo-events" onclick="undoAction('events')" disabled>↩ Отменить</button><button class="add-btn" onclick="addEvent()">+ Событие</button></div></div><div id="events-list"></div></div>
+        </div>
+      </div>
+
+      <!-- INSPIRATION -->
+      <div id="tab-inspo" class="panel">
+        <div style="display:contents" id="inspo-root"></div>
+      </div>
+
+      <!-- STATS -->
+      <div id="tab-stats" class="panel">
+        <div class="grid3">
+          <div class="card"><div class="card-title">Выполнено задач</div><div class="card-big-num" id="stat-done">0</div></div>
+          <div class="card"><div class="card-title">Лучший стрик</div><div class="card-big-num" style="color:var(--accent)" id="stat-streak">0</div></div>
+          <div class="card"><div class="card-title">Целей достигнуто</div><div class="card-big-num" style="color:var(--accent3)" id="stat-goals">0</div></div>
+        </div>
+        <div class="card"><div class="card-title">Прогресс привычек</div><div id="stats-habits" style="margin-top:12px"></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── FAVICON ───────────────────────────────────────────────
+(function(){
+  const c=document.createElement('canvas');c.width=c.height=64;
+  const ctx=c.getContext('2d');
+  ctx.font='52px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🪿',32,34);
+  const link=document.createElement('link');link.rel='icon';link.href=c.toDataURL();
+  document.head.appendChild(link);
+})();
+
+// ── STORAGE ───────────────────────────────────────────────
+const COLORS=['#7ec8a0','#c9a96e','#8b5cf6','#f87171','#60a5fa','#f59e0b','#ec4899','#34d399'];
+function load(k,d){try{const v=localStorage.getItem('goose_'+k);return v?JSON.parse(v):JSON.parse(JSON.stringify(d));}catch(e){return JSON.parse(JSON.stringify(d));}}
+function persist(k,v){try{localStorage.setItem('goose_'+k,JSON.stringify(v));}catch(e){}}
+
+let habits   = load('habits',[]);
+let tasks    = load('tasks',[]);
+let goals    = load('goals',[]);
+let expenses = load('expenses',[]);
+let events   = load('events',{});
+let credits  = load('credits',[]);
+let savings  = load('savings',{total:0,goal:0,history:[]});
+let budget   = load('budget',0);
+let inspoBoards = load('inspoBoards',{
+  life:   {label:'Идеальная жизнь', emoji:'🌿', color:'#7ec8a0', items:[]},
+  style:  {label:'Стиль и наряды',  emoji:'👗', color:'#ec4899', items:[]},
+  wish:   {label:'Вишлист',         emoji:'✨', color:'#c9a96e', items:[]},
+  travel: {label:'Путешествия',     emoji:'✈️', color:'#60a5fa', items:[]},
+});
+let inspoTab = load('inspoTab','life');
+let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
+
+// ── UNDO ──────────────────────────────────────────────────
+const undoStacks={habits:[],tasks:[],goals:[],expenses:[],credits:[],events:[]};
+const DATA_MAP={habits:()=>habits,tasks:()=>tasks,goals:()=>goals,expenses:()=>expenses,credits:()=>credits,events:()=>events};
+const DATA_SET={habits:v=>{habits=v;},tasks:v=>{tasks=v;},goals:v=>{goals=v;},expenses:v=>{expenses=v;},credits:v=>{credits=v;},events:v=>{events=v;}};
+function snapshot(k){undoStacks[k].push(JSON.stringify(DATA_MAP[k]()));if(undoStacks[k].length>20)undoStacks[k].shift();refreshUndoBtn(k);}
+function refreshUndoBtn(k){const b=document.getElementById('undo-'+k);if(b)b.disabled=!undoStacks[k].length;}
+function undoAction(k){if(!undoStacks[k].length)return;DATA_SET[k](JSON.parse(undoStacks[k].pop()));persist(k,DATA_MAP[k]());refreshUndoBtn(k);renderAll();showToast('Отменено ↩',null,true);}
+let savingsUndoStack=[];
+function snapshotSavings(){savingsUndoStack.push(JSON.stringify(savings));if(savingsUndoStack.length>20)savingsUndoStack.shift();const b=document.getElementById('undo-savings');if(b)b.disabled=!savingsUndoStack.length;}
+function undoSavings(){if(!savingsUndoStack.length)return;savings=JSON.parse(savingsUndoStack.pop());persist('savings',savings);const b=document.getElementById('undo-savings');if(b)b.disabled=!savingsUndoStack.length;renderAll();showToast('Отменено ↩',null,true);}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg,undoFn,noUndo){
+  const wrap=document.getElementById('toast-wrap');
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<span style="flex:1">${msg}</span>${(!noUndo&&undoFn)?'<button class="toast-undo">↩ Отменить</button>':''}
+    <button class="toast-close">×</button>`;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  const close=()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);};
+  t.querySelector('.toast-close').onclick=close;
+  if(!noUndo&&undoFn){t.querySelector('.toast-undo').onclick=()=>{undoFn();close();};}
+  const timer=setTimeout(close,noUndo?2000:5000);
+  t.querySelector('.toast-close').addEventListener('click',()=>clearTimeout(timer));
+}
+function saveWithUndo(key,msg,undoFn){persist(key,DATA_MAP[key]());showToast(msg,undoFn||null);renderAll();}
+
+function fmt(n){return Math.round(n).toLocaleString('ru-RU')+' ₽';}
+document.getElementById('dateChip').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+
+function resetAll(){
+  if(!confirm('Сбросить все данные?'))return;
+  ['habits','tasks','goals','expenses','events','credits','savings','budget','inspoBoards','inspoTab'].forEach(k=>localStorage.removeItem('goose_'+k));
+  habits=[];tasks=[];goals=[];expenses=[];events={};credits=[];savings={total:0,goal:0,history:[]};budget=0;
+  inspoBoards=load('inspoBoards',{life:{label:'Идеальная жизнь',emoji:'🌿',color:'#7ec8a0',items:[]},style:{label:'Стиль и наряды',emoji:'👗',color:'#ec4899',items:[]},wish:{label:'Вишлист',emoji:'✨',color:'#c9a96e',items:[]},travel:{label:'Путешествия',emoji:'✈️',color:'#60a5fa',items:[]}});
+  Object.keys(undoStacks).forEach(k=>undoStacks[k]=[]);savingsUndoStack=[];
+  renderAll();
+}
+
+function showTab(t,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(el)el.classList.add('active');
+  renderAll();
+}
+function showFinTab(t,el){
+  ['expenses','credits','savings'].forEach(x=>{document.getElementById('fin-'+x).style.display=x===t?'block':'none';});
+  document.querySelectorAll('.fin-tab').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderAll();
+}
+
+// ── HABITS ────────────────────────────────────────────────
+function renderHabits(el){
+  if(!el)return;
+  el.innerHTML=habits.length?habits.map(h=>`
+    <div class="habit-item">
+      <div class="habit-check ${h.done?'done':''}" onclick="toggleHabit(${h.id})"></div>
+      <div class="habit-info"><div class="habit-name">${h.name}</div><div class="habit-streak">🔥 ${h.streak} дней</div>
+        <div class="habit-bar"><div class="habit-fill" style="width:${h.pct}%;background:${h.color}"></div></div></div>
+      <div style="display:flex;align-items:center;gap:5px"><span style="font-size:12px;color:var(--text3)">${h.pct}%</span><button class="del-btn" onclick="deleteHabit(${h.id})">×</button></div>
+    </div>`).join(''):'<div class="empty">Нет привычек</div>';
+  refreshUndoBtn('habits');
+}
+function toggleHabit(id){snapshot('habits');const h=habits.find(x=>x.id===id);h.done=!h.done;if(h.done){h.streak++;h.pct=Math.min(100,h.pct+7);}else{h.streak=Math.max(0,h.streak-1);}const snap=JSON.stringify(habits);saveWithUndo('habits',h.done?`✅ «${h.name}» отмечена`:`↩ «${h.name}» снята`,()=>{habits=JSON.parse(snap);persist('habits',habits);renderAll();});}
+function deleteHabit(id){snapshot('habits');const h=habits.find(x=>x.id===id);habits=habits.filter(x=>x.id!==id);saveWithUndo('habits',`🗑 «${h.name}» удалена`);}
+function addHabit(){const n=prompt('Название привычки:');if(!n||!n.trim())return;snapshot('habits');habits.push({id:Date.now(),name:n.trim(),done:false,streak:0,pct:0,color:COLORS[habits.length%COLORS.length]});saveWithUndo('habits',`➕ «${n.trim()}» добавлена`);}
+
+// ── TASKS ─────────────────────────────────────────────────
+const TAG_LABELS={work:'Работа',health:'Здоровье',personal:'Личное'};
+function renderTasks(el){
+  if(!el)return;
+  el.innerHTML=tasks.length?tasks.map(t=>`
+    <div class="task-item">
+      <div class="task-box ${t.done?'done':''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-text ${t.done?'done':''}" style="flex:1">${t.text}<br><span class="tag ${t.tag}">${TAG_LABELS[t.tag]||t.tag}</span></div>
+      <button class="del-btn" onclick="deleteTask(${t.id})">×</button>
+    </div>`).join(''):'<div class="empty">Нет задач</div>';
+  refreshUndoBtn('tasks');
+}
+function toggleTask(id){snapshot('tasks');const t=tasks.find(x=>x.id===id);t.done=!t.done;saveWithUndo('tasks',t.done?`✅ «${t.text.slice(0,28)}» выполнена`:'↩ Задача возвращена');}
+function deleteTask(id){snapshot('tasks');const t=tasks.find(x=>x.id===id);tasks=tasks.filter(x=>x.id!==id);saveWithUndo('tasks',`🗑 «${t.text.slice(0,28)}» удалена`);}
+function addTask(){const n=prompt('Задача:');if(!n||!n.trim())return;const tag=prompt('Категория:\n1 — Работа\n2 — Здоровье\n3 — Личное','3')||'3';const m={'1':'work','2':'health','3':'personal','работа':'work','здоровье':'health','личное':'personal'};snapshot('tasks');tasks.push({id:Date.now(),text:n.trim(),done:false,tag:m[tag.toLowerCase()]||'personal'});saveWithUndo('tasks','➕ Задача добавлена');}
+
+// ── GOALS ─────────────────────────────────────────────────
+function renderGoals(el){
+  if(!el)return;
+  el.innerHTML=goals.length?goals.map(g=>`
+    <div class="goal-item">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <div style="font-weight:500;font-size:13.5px">${g.name}</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--accent);font-weight:600;font-size:12px">${g.pct}%</span><button class="del-btn" onclick="deleteGoal(${g.id})">×</button></div>
+      </div>
+      <div class="goal-bar"><div class="goal-fill" style="width:${g.pct}%;background:${g.color}"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px">
+        <div style="font-size:11px;color:var(--text3)">📅 ${g.deadline}</div>
+        <div style="display:flex;gap:4px">
+          <button onclick="updateGoal(${g.id},-10)" style="background:var(--bg3);border:none;color:var(--text2);padding:2px 7px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit">−10%</button>
+          <button onclick="updateGoal(${g.id},10)"  style="background:var(--bg3);border:none;color:var(--text2);padding:2px 7px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit">+10%</button>
+        </div>
+      </div>
+    </div>`).join(''):'<div class="empty">Нет целей</div>';
+  const avg=goals.length?Math.round(goals.reduce((a,g)=>a+g.pct,0)/goals.length):null;
+  const el2=document.getElementById('goals-avg');if(el2)el2.textContent=avg!==null?avg+'%':'—';
+  refreshUndoBtn('goals');
+}
+function updateGoal(id,d){snapshot('goals');const g=goals.find(x=>x.id===id);g.pct=Math.max(0,Math.min(100,g.pct+d));saveWithUndo('goals',`📊 Прогресс обновлён`);}
+function deleteGoal(id){snapshot('goals');const g=goals.find(x=>x.id===id);goals=goals.filter(x=>x.id!==id);saveWithUndo('goals',`🗑 «${g.name.slice(0,24)}» удалена`);}
+function addGoal(){const n=prompt('Цель:');if(!n||!n.trim())return;const d=prompt('Дедлайн:','Декабрь 2025')||'';snapshot('goals');goals.push({id:Date.now(),name:n.trim(),pct:0,deadline:d.trim(),color:COLORS[goals.length%COLORS.length]});saveWithUndo('goals','➕ Цель добавлена');}
+
+// ── FINANCE ───────────────────────────────────────────────
+function setBudget(){const v=parseInt(prompt('Бюджет (₽):',String(budget)));if(!isNaN(v)&&v>=0){budget=v;persist('budget',budget);renderAll();}}
+function renderFinance(el){
+  if(!el)return;
+  const total=expenses.reduce((a,e)=>a+e.amount,0);
+  const bd=document.getElementById('fin-budget-display');if(bd)bd.textContent=fmt(budget);
+  const fs=document.getElementById('fin-spent-big');if(fs)fs.textContent=fmt(total);
+  const ds=document.getElementById('dash-spent');if(ds)ds.textContent=fmt(total).replace(' ₽','');
+  const p=document.getElementById('fin-pct');if(p)p.textContent=budget>0?Math.round(total/budget*100)+'% бюджета':'—';
+  const l=document.getElementById('fin-left');if(l)l.textContent=fmt(Math.max(0,budget-total));
+  el.innerHTML=expenses.length?expenses.map(e=>`
+    <div class="prog-row">
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:var(--text2)">${e.cat}</span>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--text);font-weight:500">${fmt(e.amount)} / ${fmt(e.budget)}</span><button class="del-btn" onclick="deleteExpense(${e.id})">×</button></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:${Math.min(100,e.budget>0?Math.round(e.amount/e.budget*100):0)}%;background:${e.color}"></div></div>
+    </div>`).join(''):'<div class="empty">Нет расходов</div>';
+  refreshUndoBtn('expenses');
+}
+function deleteExpense(id){snapshot('expenses');const e=expenses.find(x=>x.id===id);expenses=expenses.filter(x=>x.id!==id);saveWithUndo('expenses',`🗑 «${e.cat}» удалена`);}
+function addExpense(){const cat=prompt('Категория:');if(!cat||!cat.trim())return;const amt=parseInt(prompt('Сумма (₽):'));if(isNaN(amt)||amt<=0)return;snapshot('expenses');const ex=expenses.find(e=>e.cat.toLowerCase()===cat.trim().toLowerCase());if(ex){ex.amount+=amt;saveWithUndo('expenses',`➕ ${cat}: +${fmt(amt)}`);return;}const bud=parseInt(prompt('Лимит (₽):',String(amt*2)))||amt*2;expenses.push({id:Date.now(),cat:cat.trim(),amount:amt,budget:bud,color:COLORS[expenses.length%COLORS.length]});saveWithUndo('expenses',`➕ «${cat.trim()}» добавлена`);}
+
+// ── CREDITS ───────────────────────────────────────────────
+function renderCredits(el){
+  if(!el)return;
+  const td=document.getElementById('total-debt');if(td)td.textContent=fmt(credits.reduce((a,c)=>a+c.remaining,0));
+  const mp=document.getElementById('monthly-payments');if(mp)mp.textContent=fmt(credits.reduce((a,c)=>a+c.payment,0));
+  el.innerHTML=credits.length?credits.map(c=>{
+    const pct=c.total>0?Math.round((1-c.remaining/c.total)*100):0;
+    const daysLeft=c.nextDate?Math.ceil((new Date(c.nextDate)-new Date())/(1000*60*60*24)):null;
+    const urgent=daysLeft!==null&&daysLeft<=7;
+    return `<div class="credit-item">
+      <div style="display:flex;justify-content:space-between"><div style="font-weight:500">${c.name}</div><button class="del-btn" onclick="deleteCredit(${c.id})">×</button></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin:5px 0"><span>Остаток: <b style="color:var(--accent4)">${fmt(c.remaining)}</b></span><span>Платёж: <b>${fmt(c.payment)}/мес</b></span></div>
+      <div class="prog-track" style="margin-bottom:6px"><div class="prog-fill" style="width:${pct}%;background:var(--accent3)"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        ${c.nextDate?`<div style="font-size:12px;color:${urgent?'var(--accent4)':'var(--accent3)'}">${urgent?'⚠️':'✅'} ${new Date(c.nextDate).toLocaleDateString('ru-RU',{day:'numeric',month:'short'})} — ${fmt(c.payment)}</div>`:'<div></div>'}
+        <button onclick="payCredit(${c.id})" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.2);color:var(--accent3);padding:3px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-family:inherit">✓ Оплатить</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty">Нет кредитов</div>';
+  refreshUndoBtn('credits');
+}
+function renderDashCredits(){const el=document.getElementById('dash-credits');if(!el)return;const sorted=[...credits].sort((a,b)=>new Date(a.nextDate)-new Date(b.nextDate)).slice(0,3);el.innerHTML=sorted.length?sorted.map(c=>{const daysLeft=c.nextDate?Math.ceil((new Date(c.nextDate)-new Date())/(1000*60*60*24)):null;const urgent=daysLeft!==null&&daysLeft<=7;return`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div><div style="font-size:13px;font-weight:500">${c.name}</div><div style="font-size:11px;color:${urgent?'var(--accent4)':'var(--text3)'};margin-top:2px">${c.nextDate?'📅 '+new Date(c.nextDate).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):''}</div></div><div style="font-weight:600;color:${urgent?'var(--accent4)':'var(--text)'}">${fmt(c.payment)}</div></div>`}).join(''):'<div class="empty">Кредитов нет</div>';}
+function deleteCredit(id){snapshot('credits');const c=credits.find(x=>x.id===id);credits=credits.filter(x=>x.id!==id);saveWithUndo('credits',`🗑 «${c.name}» удалён`);}
+function payCredit(id){snapshot('credits');const c=credits.find(x=>x.id===id);c.remaining=Math.max(0,c.remaining-c.payment);if(c.nextDate){const d=new Date(c.nextDate);d.setMonth(d.getMonth()+1);c.nextDate=d.toISOString().split('T')[0];}saveWithUndo('credits',`💸 Платёж по «${c.name}» — ${fmt(c.payment)}`);}
+function addCredit(){const name=prompt('Название:');if(!name||!name.trim())return;const total=parseInt(prompt('Сумма долга (₽):'));if(isNaN(total)||total<=0)return;const payment=parseInt(prompt('Ежемесячный платёж (₽):'));if(isNaN(payment)||payment<=0)return;const nextDate=prompt('Дата платежа (ГГГГ-ММ-ДД):',new Date(new Date().getFullYear(),new Date().getMonth()+1,1).toISOString().split('T')[0])||'';snapshot('credits');credits.push({id:Date.now(),name:name.trim(),total,remaining:total,payment,nextDate});saveWithUndo('credits',`➕ «${name.trim()}» добавлен`);}
+
+// ── SAVINGS ───────────────────────────────────────────────
+function renderSavings(){
+  const st=document.getElementById('savings-total');if(st)st.textContent=fmt(savings.total);
+  const dsh=document.getElementById('dash-savings');if(dsh)dsh.textContent=fmt(savings.total).replace(' ₽','');
+  const gl=document.getElementById('savings-goal-label');if(gl)gl.textContent=savings.goal>0?`цель: ${fmt(savings.goal)} (${Math.round(savings.total/savings.goal*100)}%)`:'цель не задана';
+  const bar=document.getElementById('savings-bar');if(bar)bar.style.width=(savings.goal>0?Math.min(100,Math.round(savings.total/savings.goal*100)):0)+'%';
+  const hist=document.getElementById('savings-history');
+  if(hist){const items=[...savings.history].reverse().slice(0,8);hist.innerHTML=items.length?items.map(h=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)"><div><div style="font-size:13px">${h.note||'Пополнение'}</div><div style="font-size:11px;color:var(--text3)">${h.date}</div></div><div style="font-weight:600;color:var(--accent)">+${fmt(h.amount)}</div></div>`).join(''):'<div class="empty">Нет пополнений</div>';}
+  const dp=document.getElementById('dash-piggy');
+  if(dp)dp.innerHTML=`<div style="font-family:'DM Serif Display',serif;font-size:36px;color:var(--accent);line-height:1;margin-top:4px">${fmt(savings.total)}</div>${savings.goal>0?`<div style="margin-top:10px"><div style="height:5px;background:var(--bg4);border-radius:3px;overflow:hidden"><div style="height:100%;width:${Math.min(100,Math.round(savings.total/savings.goal*100))}%;background:var(--accent);border-radius:3px"></div></div><div style="font-size:11px;color:var(--text3);margin-top:5px">цель: ${fmt(savings.goal)}</div></div>`:'<div style="font-size:12px;color:var(--text3);margin-top:6px">цель не задана</div>'}`;
+  const b=document.getElementById('undo-savings');if(b)b.disabled=!savingsUndoStack.length;
+}
+function addToSavings(){const amt=parseInt(prompt('Сумма (₽):'));if(isNaN(amt)||amt<=0)return;const note=prompt('Заметка:','')||'';snapshotSavings();savings.total+=amt;savings.history.push({amount:amt,note:note.trim(),date:new Date().toLocaleDateString('ru-RU')});persist('savings',savings);showToast(`🪿 +${fmt(amt)} в копилку`,()=>{undoSavings();});renderAll();}
+function setSavingsGoal(){const v=parseInt(prompt('Цель (₽):',String(savings.goal)));if(!isNaN(v)&&v>=0){snapshotSavings();savings.goal=v;persist('savings',savings);renderAll();}}
+
+// ── CALENDAR ──────────────────────────────────────────────
+const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function renderCalendar(){
+  const grid=document.getElementById('calendar-grid');if(!grid)return;
+  const title=document.getElementById('cal-month-title');if(title)title.textContent=MONTHS[calMonth]+' '+calYear;
+  const first=new Date(calYear,calMonth,1).getDay(),offset=(first+6)%7,days=new Date(calYear,calMonth+1,0).getDate(),today=new Date(),prevDays=new Date(calYear,calMonth,0).getDate();
+  let html='<div class="cal-grid">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  for(let i=offset-1;i>=0;i--)html+=`<div class="cal-day other-month">${prevDays-i}</div>`;
+  for(let d=1;d<=days;d++){const isToday=d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear();const key=`${calYear}-${calMonth+1}-${d}`;html+=`<div class="cal-day ${isToday?'today':''} ${events[key]?'has-event':''}" title="${events[key]||''}" onclick="calDayClick(${d})">${d}</div>`;}
+  html+='</div>';grid.innerHTML=html;
+  const evList=document.getElementById('events-list');
+  if(evList){const me=Object.entries(events).filter(([k])=>k.startsWith(`${calYear}-${calMonth+1}-`)).sort((a,b)=>parseInt(a[0].split('-')[2])-parseInt(b[0].split('-')[2]));evList.innerHTML=me.length?me.map(([k,v])=>{const day=k.split('-')[2];return`<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:9px;align-items:center"><div style="background:var(--accent2);color:#fff;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:700;min-width:28px;text-align:center">${day}</div><div style="flex:1;font-size:13px">${v}</div><button class="del-btn" onclick="deleteEvent('${k}')">×</button></div>`}).join(''):'<div class="empty">Событий нет</div>';}
+  refreshUndoBtn('events');
+}
+function calDayClick(d){const key=`${calYear}-${calMonth+1}-${d}`;if(events[key]){if(confirm(`Удалить: "${events[key]}"?`)){deleteEvent(key);}return;}const n=prompt(`${d} ${MONTHS[calMonth]}:`);if(n&&n.trim()){snapshot('events');events[key]=n.trim();saveWithUndo('events','📅 Событие добавлено');}}
+function deleteEvent(key){snapshot('events');const name=events[key];delete events[key];saveWithUndo('events',`🗑 «${name}» удалено`);}
+function addEvent(){const d=prompt('День:');if(!d)return;const n=prompt('Название:');if(!n||!n.trim())return;snapshot('events');events[`${calYear}-${calMonth+1}-${parseInt(d)}`]=n.trim();saveWithUndo('events','📅 Событие добавлено');}
+function changeMonth(delta){calMonth+=delta;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+// ── INSPIRATION ───────────────────────────────────────────
+function renderInspo(){
+  const root=document.getElementById('inspo-root');if(!root)return;
+  const boards=inspoBoards;
+  const activeKey=inspoTab;
+  const board=boards[activeKey];
+
+  let html=`<div>
+    <div class="inspo-tabs">`;
+  Object.entries(boards).forEach(([k,b])=>{
+    const active=k===activeKey;
+    html+=`<div class="inspo-tab ${active?'active':''}" style="${active?`background:${b.color};`:''}" onclick="switchInspoTab('${k}')">${b.emoji} ${b.label}</div>`;
+  });
+  html+=`</div>`;
+
+  if(activeKey==='wish'){
+    // WISHLIST special view
+    html+=`<div class="grid2">
+      <div class="card">
+        <div class="section-header">
+          <div class="card-title">✨ Вишлист</div>
+          <button class="add-btn" onclick="addWishItem()">+ Желание</button>
+        </div>
+        <div id="wish-list">`;
+    if(board.items.length){
+      board.items.forEach((item,i)=>{
+        html+=`<div class="wish-item">
+          <div class="wish-check ${item.bought?'bought':''}" onclick="toggleWish(${i})"></div>
+          <div class="wish-name ${item.bought?'bought':''}" style="flex:1">${item.name}</div>
+          ${item.price?`<div class="wish-price">${item.price}</div>`:''}
+          <button class="del-btn" onclick="deleteWish(${i})">×</button>
+        </div>`;
+      });
+    } else {
+      html+=`<div class="empty">Список желаний пуст — добавьте первое желание!</div>`;
+    }
+    html+=`</div></div>
+      <div class="card">
+        <div class="card-title">Прогресс</div>
+        <div style="margin-top:16px;text-align:center">
+          <div style="font-family:'DM Serif Display',serif;font-size:52px;color:var(--gold)">
+            ${board.items.filter(x=>x.bought).length}/${board.items.length||0}
+          </div>
+          <div style="color:var(--text2);margin-top:8px;font-size:13px">желаний исполнено</div>
+          ${board.items.length?`<div style="margin-top:16px;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${Math.round(board.items.filter(x=>x.bought).length/board.items.length*100)}%;background:var(--gold);border-radius:4px;transition:width .6s"></div></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  } else {
+    // IMAGE BOARD
+    html+=`<div style="margin-bottom:14px;display:flex;gap:8px;align-items:center">
+      <div style="font-size:13px;color:var(--text3)">Вставьте URL картинки или загрузите с компьютера</div>
+      <button class="add-btn" onclick="addInspoImage('${activeKey}')">+ URL картинки</button>
+      <label style="display:inline-flex;align-items:center;gap:6px;background:rgba(126,200,160,0.15);color:var(--accent);border:1px solid rgba(126,200,160,0.25);padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px">
+        📁 С компьютера
+        <input type="file" accept="image/*" multiple style="display:none" onchange="uploadInspoImages(event,'${activeKey}')">
+      </label>
+    </div>
+    <div class="board" id="board-${activeKey}">`;
+    if(board.items.length){
+      board.items.forEach((item,i)=>{
+        html+=`<div class="board-item">
+          <img src="${item.src}" alt="${item.label||''}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height%22150%22><rect fill=%22%23222%22 width=%22200%22 height=%22150%22/><text x=%2250%%22 y=%2250%%22 fill=%22%23666%22 text-anchor=%22middle%22 dy=%22.3em%22>⚠️ Не загрузилась</text></svg>'">
+          <div class="item-overlay"><div class="item-label">${item.label||''}</div></div>
+          <button class="item-del" onclick="deleteInspoItem('${activeKey}',${i})">×</button>
+        </div>`;
+      });
+    } else {
+      html+=`<div class="board-url" onclick="addInspoImage('${activeKey}')"><div style="font-size:28px">${board.emoji}</div><div>Добавьте первую картинку</div><div style="font-size:11px;opacity:0.6">URL или загрузите с компьютера</div></div>`;
+    }
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+  root.innerHTML=html;
+}
+
+function switchInspoTab(key){inspoTab=key;persist('inspoTab',key);renderInspo();}
+
+function addInspoImage(boardKey){
+  const url=prompt('URL картинки:');if(!url||!url.trim())return;
+  const label=prompt('Подпись (необязательно):','')||'';
+  inspoBoards[boardKey].items.push({src:url.trim(),label:label.trim(),type:'url'});
+  persist('inspoBoards',inspoBoards);
+  showToast(`🖼 Картинка добавлена`,null,true);
+  renderInspo();
+}
+
+function uploadInspoImages(event,boardKey){
+  const files=Array.from(event.target.files);
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      inspoBoards[boardKey].items.push({src:e.target.result,label:file.name.replace(/\.[^.]+$/,''),type:'local'});
+      loaded++;
+      if(loaded===files.length){persist('inspoBoards',inspoBoards);showToast(`🖼 Добавлено ${files.length} фото`,null,true);renderInspo();}
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function deleteInspoItem(boardKey,idx){
+  inspoBoards[boardKey].items.splice(idx,1);
+  persist('inspoBoards',inspoBoards);
+  showToast('🗑 Удалено',null,true);
+  renderInspo();
+}
+
+function addWishItem(){
+  const name=prompt('Что хочется?');if(!name||!name.trim())return;
+  const price=prompt('Цена (необязательно):','')||'';
+  inspoBoards.wish.items.push({name:name.trim(),price:price.trim(),bought:false});
+  persist('inspoBoards',inspoBoards);
+  showToast(`✨ «${name.trim()}» добавлено в вишлист`,null,true);
+  renderInspo();
+}
+function toggleWish(idx){inspoBoards.wish.items[idx].bought=!inspoBoards.wish.items[idx].bought;persist('inspoBoards',inspoBoards);renderInspo();}
+function deleteWish(idx){inspoBoards.wish.items.splice(idx,1);persist('inspoBoards',inspoBoards);renderInspo();}
+
+// ── WEEK STATS / STATS ────────────────────────────────────
+function renderHabitWeekStats(){const el=document.getElementById('habit-week-stats');if(!el)return;el.innerHTML=habits.length?habits.map(h=>`<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px"><div style="width:100px;font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div><div style="flex:1;height:18px;display:flex;gap:2px">${[1,1,0,1,1,1,h.done?1:0].map(v=>`<div style="flex:1;border-radius:3px;background:${v?h.color:'var(--bg4)'}"></div>`).join('')}</div><div style="font-size:11px;color:var(--text3);min-width:24px;text-align:right">${[1,1,0,1,1,1,h.done?1:0].filter(Boolean).length}/7</div></div>`).join(''):'<div class="empty">Добавьте привычки</div>';}
+function renderStats(){const done=document.getElementById('stat-done');if(done)done.textContent=tasks.filter(t=>t.done).length;const streak=document.getElementById('stat-streak');if(streak)streak.textContent=habits.length?Math.max(...habits.map(h=>h.streak)):0;const g=document.getElementById('stat-goals');if(g)g.textContent=goals.filter(x=>x.pct>=100).length;const sh=document.getElementById('stats-habits');if(sh)sh.innerHTML=habits.length?habits.map(h=>`<div style="display:flex;align-items:center;gap:11px;margin-bottom:12px"><div style="width:110px;font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div><div style="flex:1;height:7px;background:var(--bg4);border-radius:4px;overflow:hidden"><div style="height:100%;width:${h.pct}%;background:${h.color};border-radius:4px"></div></div><div style="font-size:12px;color:var(--text3);min-width:32px;text-align:right">${h.pct}%</div></div>`).join(''):'<div class="empty">Добавьте привычки</div>';}
+function renderDashExtras(){const ds=document.getElementById('dash-streak');if(ds)ds.textContent=habits.length?Math.max(...habits.map(h=>h.streak)):'—';const dt=document.getElementById('dash-tasks-count');if(dt)dt.textContent=tasks.length?tasks.filter(t=>t.done).length+'/'+tasks.length:'—';}
+
+function renderAll(){
+  renderHabits(document.getElementById('dash-habits'));renderHabits(document.getElementById('habits-list'));
+  renderTasks(document.getElementById('dash-tasks'));renderTasks(document.getElementById('tasks-list'));
+  renderGoals(document.getElementById('dash-goals'));renderGoals(document.getElementById('goals-list'));
+  renderFinance(document.getElementById('finance-list'));
+  renderCredits(document.getElementById('credits-list'));renderDashCredits();
+  renderSavings();renderCalendar();renderHabitWeekStats();renderStats();renderDashExtras();
+  if(document.getElementById('tab-inspo').classList.contains('active')) renderInspo();
+}
+renderAll();
+</script>
